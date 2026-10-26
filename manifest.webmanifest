@@ -1,0 +1,16 @@
+{
+  "name": "Basic Bitch Guide to Vietnam",
+  "short_name": "Basic Bitch",
+  "description": "Fourteen days, zero pork, maximum vibes.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#AF52DE",
+  "theme_color": "#AF52DE",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
