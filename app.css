@@ -163,6 +163,7 @@ a.btn-primary { color: var(--on-purple); }
 .badge.bad { background: var(--red-tint); color: var(--red); }
 .badge.vibe { background: var(--purple-tint); color: var(--purple-ink); }
 .badge.rain { background: var(--rain-tint); color: var(--rain); }
+.badge.verdict { background: var(--purple); color: var(--on-purple); }
 
 /* ---------- unsolicited fact ---------- */
 .fact { margin-top: 10px; background: var(--surface); border-radius: 22px; padding: 18px; display: grid; gap: 12px; }

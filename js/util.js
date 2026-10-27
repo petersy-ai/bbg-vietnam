@@ -144,7 +144,8 @@ export function catOf(card) {
 // Pork / dairy / grease / effort chips.
 export function badgesHTML(c, { effort = true } = {}) {
   const out = [];
-  const pork = { ok: ["ok", "Pork-free"], ask: ["mid", "Ask: pork?"], avoid: ["bad", "Has pork"] }[c.pork];
+  if (c.verdict) out.push(`<span class="badge verdict">${esc(c.verdict)}</span>`);
+  const pork ={ ok: ["ok", "Pork-free"], ask: ["mid", "Ask: pork?"], avoid: ["bad", "Has pork"] }[c.pork];
   if (pork) out.push(`<span class="badge ${pork[0]}">${pork[1]}</span>`);
   const dairy = { none: ["ok", "No dairy"], low: ["ok", "Little dairy"], some: ["mid", "Some dairy"], high: ["bad", "Lots of dairy"] }[c.dairy];
   if (dairy) out.push(`<span class="badge ${dairy[0]}">${dairy[1]}</span>`);

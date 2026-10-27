@@ -1,5 +1,5 @@
 // Offline support. The build stamps VERSION and the file list.
-const VERSION = "20261027-034542";
+const VERSION = "20261027-055703";
 const SHELL = ["./", "./app.css", "./data.enc.json", "./icons/apple-touch-icon.png", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png", "./index.html", "./js/app.js", "./js/crypto.js", "./js/map.js", "./js/util.js", "./manifest.webmanifest", "./vendor/maplibre-LICENSE.txt", "./vendor/maplibre-gl.css", "./vendor/maplibre-gl.js"];
 const SHELL_CACHE = `bbg-shell-${VERSION}`;
 const MAP_CACHE = "bbg-map-v1";

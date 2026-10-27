@@ -288,8 +288,10 @@ function dayDetail(d) {
   const todo = mine.filter(c => ["do", "tailor"].includes(c.kind) && !c.backup);
   const ifRain = mine.filter(c => c.backup);
   const heads = mine.filter(c => c.kind === "hack");
+  // Restaurants picked for today first, then other food for today, then the rest; warnings last.
+  const eatRank = c => ((c.days || []).includes(d) ? 4 : 0) + (c.verdict ? 2 : 0) + (catOf(c) === "eat" ? 1 : 0) - (c.kind === "watch" ? 6 : 0);
   const eat = D.cardList.filter(c => day.stops.includes(c.stop) && (c.kind === "food" || c.kind === "watch"))
-    .sort((a, b) => (b.days || []).includes(d) - (a.days || []).includes(d) || (a.kind === "watch") - (b.kind === "watch"));
+    .sort((a, b) => eatRank(b) - eatRank(a));
   const hotel = day.hotel && D.places[day.hotel];
   return `<button class="btn" style="width:auto;height:34px;margin-bottom:8px" data-act="back">${icon("back")} Trip</button>
     <div class="eyebrow">Day ${d} · ${esc(dateLabel(d))}</div>
@@ -384,7 +386,7 @@ export function openCard(id) {
   if (!c) return;
   if (c.kind === "fact") return openFact(c);
   const p = placeOf(c), cat = CATS[catOf(c)] || CATS.practical;
-  const kv = [["Order", c.order], ["Tip", c.tip], ["When", c.when], ["Cost", c.price], ["Address", p?.address_vi]].filter(([, v]) => v);
+  const kv = [["Order", c.order], ["Tip", c.tip], ["Reviews", c.reviews], ["When", c.when], ["Cost", c.price], ["Address", p?.address_vi]].filter(([, v]) => v);
   const dist = distTo(c);
   openModal(`<div class="detail">
     <div class="eyebrow" style="color:${cat.color}">${esc(cat.label)} · ${esc(stopObj(c.stop)?.short || "Anywhere")}${dist != null ? ` · ${distLabel(dist)}` : ""}</div>
