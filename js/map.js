@@ -2,7 +2,7 @@
 /* global maplibregl */
 import { $, esc, icon, CATS, catOf, metres, distLabel, store } from "./util.js";
 
-const FILTERS = ["all", "eat", "coffee", "sweet", "shop", "sights", "vibes", "tailor", "fact"];
+const FILTERS = ["all", "eat", "coffee", "sweet", "shop", "sights", "rainy", "vibes", "tailor", "fact"];
 const dark = () => matchMedia("(prefers-color-scheme: dark)").matches;
 const STYLE = () => `https://tiles.openfreemap.org/styles/${dark() ? "dark" : "positron"}`;
 
@@ -50,8 +50,9 @@ function tint() {
 function pinCards(placeId) { return (ctx.D.places[placeId]?.cards || []).map(id => ctx.D.cards[id]).filter(Boolean); }
 
 function visibleFor(card) {
-  if (filter === "all") return card.kind !== "fact";
+  if (filter === "all") return card.kind !== "fact" && !card.backup;
   if (filter === "vibes") return !!card.vibes;
+  if (filter === "rainy") return !!card.rainy;
   return catOf(card) === filter;
 }
 
@@ -61,9 +62,9 @@ function addPins() {
     const el = document.createElement("button");
     el.type = "button";
     el.className = "pin" + (p.home ? " home" : "");
-    el.setAttribute("aria-label", p.name);
     el.addEventListener("click", ev => { ev.stopPropagation(); openPlace(pid); });
     const m = new maplibregl.Marker({ element: el, anchor: "bottom-left", offset: [-4, 4] }).setLngLat([p.lng, p.lat]).addTo(map);
+    el.setAttribute("aria-label", p.name); // after the Marker, which overwrites it with "Map marker"
     markers.push({ pid, el, m });
   }
   paintPins();
@@ -138,7 +139,7 @@ function renderSheet() {
     .filter(c => c.stop === stop.id && c.place && ctx.D.places[c.place]?.lat != null && visibleFor(c))
     .map(c => { const p = ctx.D.places[c.place]; return { c, d: metres(ref.pt, [p.lng, p.lat]) }; })
     .sort((a, b) => a.d - b.d);
-  const label = filter === "all" ? "places" : (CATS[filter]?.label || "").toLowerCase();
+  const label = filter === "all" ? "places" : filter === "rainy" ? "rainy-day options" : (CATS[filter]?.label || "").toLowerCase();
   $("#sheetBody").innerHTML = `
     <div class="sheet-head"><h2>${esc(stop.name)}</h2><span class="foot">${items.length} ${esc(label)}</span></div>
     <div class="stop-pick">${ctx.D.stops.map(s => `<button type="button" data-mapstop="${s.id}" aria-pressed="${s.id === stop.id}">${esc(s.short || s.name)}</button>`).join("")}</div>

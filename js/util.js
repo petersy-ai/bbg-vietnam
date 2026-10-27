@@ -95,6 +95,7 @@ const I = {
   sights: '<path d="M4 8h3l2-2.5h6L17 8h3v11H4V8z"/><circle cx="12" cy="13" r="3.5"/>',
   vibes: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM18.5 16l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"/>',
   tailor: '<circle cx="6.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/><path d="M8.5 16 18 4M15.5 16 6 4"/>',
+  rainy: '<path d="M3 12a9 9 0 0 1 18 0H3zM12 12v6.5a2 2 0 0 1-4 0M12 3v1"/>',
   practical: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
   fact: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 1 3.5 10.9c-.6.4-1 1.1-1 1.8V16h-5v-.3c0-.7-.4-1.4-1-1.8A6 6 0 0 1 12 3z"/>',
   home: '<path d="M4 11 12 4l8 7M6 9.5V20h12V9.5"/>',
@@ -124,6 +125,7 @@ export const CATS = {
   sights: { label: "Sights", color: "#007AFF", icon: "sights" },
   vibes: { label: "Vibes", color: "#5856D6", icon: "vibes" },
   tailor: { label: "Tailors", color: "#30B0C7", icon: "tailor" },
+  rainy: { label: "Rainy day", color: "#4A6FA5", icon: "rainy" },
   fact: { label: "Facts", color: "#D83A7C", icon: "fact" },
   practical: { label: "Know this", color: "#8E8E93", icon: "practical" },
 };
@@ -148,5 +150,6 @@ export function badgesHTML(c, { effort = true } = {}) {
     if (ef) out.push(`<span class="badge ${ef[0]}">${ef[1]}</span>`);
   }
   if (c.vibes) out.push(`<span class="badge vibe">Vibes</span>`);
+  if (c.rainy) out.push(`<span class="badge rain">Rainy day</span>`);
   return out.length ? `<div class="badges">${out.join("")}</div>` : "";
 }

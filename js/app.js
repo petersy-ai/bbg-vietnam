@@ -170,7 +170,7 @@ function nowDuring(d, now) {
   const urgent = D.cardList.filter(c => c.urgent && c.kind !== "fact" && (c.days || []).includes(d));
   const stopIds = day.stops;
   const per = period(now.min);
-  const local = D.cardList.filter(c => stopIds.includes(c.stop) && ["food", "do", "tailor"].includes(c.kind));
+  const local = D.cardList.filter(c => stopIds.includes(c.stop) && ["food", "do", "tailor"].includes(c.kind) && !c.backup);
   const pinned = local.filter(c => placeOf(c)?.lat != null);
   let near = pinned.length ? pinned : local;
   const withDist = near.map(c => ({ c, m: distTo(c) }));
@@ -281,7 +281,8 @@ function dayDetail(d) {
   const nextIdx = isToday ? plan.findIndex(p => p.at != null && p.at >= now.min - 10) : -1;
   const mine = D.cardList.filter(c => (c.days || []).includes(d) && day.stops.includes(c.stop));
   const factsToday = mine.filter(c => c.kind === "fact");
-  const todo = mine.filter(c => ["do", "tailor"].includes(c.kind));
+  const todo = mine.filter(c => ["do", "tailor"].includes(c.kind) && !c.backup);
+  const ifRain = mine.filter(c => c.backup);
   const heads = mine.filter(c => c.kind === "hack");
   const eat = D.cardList.filter(c => day.stops.includes(c.stop) && (c.kind === "food" || c.kind === "watch"))
     .sort((a, b) => (b.days || []).includes(d) - (a.days || []).includes(d) || (a.kind === "watch") - (b.kind === "watch"));
@@ -295,6 +296,7 @@ function dayDetail(d) {
     ${hotel ? section("Sleep", `<div class="list"><button class="row" data-place="${esc(day.hotel)}"><span class="ic">${icon("home")}</span><span class="txt"><b>${esc(hotel.name)}</b><span>${esc(hotel.address_vi || "")}</span></span><span class="meta">${icon("chev")}</span></button></div>`) : ""}
     ${heads.length ? section("Heads up", rows(heads, { check: true })) : ""}
     ${todo.length ? section("Worth doing", rows(todo)) : ""}
+    ${ifRain.length ? section("If it rains", rows(ifRain)) : ""}
     ${factsToday.length ? section("Unsolicited facts", rows(factsToday)) : ""}
     ${section("Eat", rows(eat.slice(0, 12)))}
     ${day.stops.map(s => `<button class="btn-tint" style="margin-top:12px" data-stop="${s}">Everything in ${esc(stopObj(s).short)} ${icon("chev")}</button>`).join("")}`;
@@ -310,11 +312,13 @@ function tripPlaces() {
 function stopDetail(id) {
   const s = stopObj(id);
   const cards = D.cardList.filter(c => c.stop === id);
-  const groups = [["eat", "Eat"], ["coffee", "Coffee"], ["sweet", "Sweet"], ["shop", "Shop"], ["sights", "Sights"], ["tailor", "Tailors"], ["practical", "Know this"], ["fact", "Unsolicited facts"]];
+  const groups = [["eat", "Eat"], ["coffee", "Coffee"], ["sweet", "Sweet"], ["shop", "Shop"], ["sights", "Sights"], ["vibes", "Vibes"], ["tailor", "Tailors"], ["practical", "Know this"], ["fact", "Unsolicited facts"]];
+  const rainy = cards.filter(c => c.rainy);
   return `<button class="btn" style="width:auto;height:34px;margin-bottom:8px" data-act="back">${icon("back")} Trip</button>
     <div class="eyebrow">${s.days.map(x => `${x} Nov`).join(" · ")}</div><h1 class="large-title">${esc(s.name)}</h1>
     <button class="btn-tint" style="margin-top:12px" data-act="showmap" data-stop="${id}">${icon("map")} Open on the map</button>
-    ${groups.map(([k, l]) => { const g = cards.filter(c => catOf(c) === k); return g.length ? section(l, rows(g)) : ""; }).join("")}`;
+    ${groups.map(([k, l]) => { const g = cards.filter(c => catOf(c) === k && !c.backup); return g.length ? section(l, rows(g)) : ""; }).join("")}
+    ${rainy.length ? section("Rainy day", rows(rainy)) : ""}`;
 }
 
 function tripEat() {

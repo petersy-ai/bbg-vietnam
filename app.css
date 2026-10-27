@@ -21,6 +21,8 @@
   --red-tint: #ffe5e3;
   --pink: #d83a7c;
   --blue: #007aff;
+  --rain: #3d5f94;
+  --rain-tint: #e4ecf7;
   --bar: rgba(249, 249, 251, 0.82);
   --shadow: 0 8px 28px rgba(40, 10, 60, 0.14), 0 1px 3px rgba(40, 10, 60, 0.08);
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -54,6 +56,8 @@
     --red-tint: #3d1412;
     --pink: #ff6aa6;
     --blue: #0a84ff;
+    --rain: #9db9e6;
+    --rain-tint: #18243a;
     --bar: rgba(22, 22, 24, 0.82);
     --shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
     color-scheme: dark;
@@ -158,6 +162,7 @@ a.btn-primary { color: var(--on-purple); }
 .badge.mid { background: var(--orange-tint); color: var(--orange); }
 .badge.bad { background: var(--red-tint); color: var(--red); }
 .badge.vibe { background: var(--purple-tint); color: var(--purple-ink); }
+.badge.rain { background: var(--rain-tint); color: var(--rain); }
 
 /* ---------- unsolicited fact ---------- */
 .fact { margin-top: 10px; background: var(--surface); border-radius: 22px; padding: 18px; display: grid; gap: 12px; }
