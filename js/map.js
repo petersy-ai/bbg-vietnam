@@ -2,7 +2,7 @@
 /* global maplibregl */
 import { $, esc, icon, CATS, catOf, metres, distLabel, store } from "./util.js";
 
-const FILTERS = ["all", "eat", "coffee", "sweet", "shop", "sights", "rainy", "vibes", "tailor", "fact"];
+const FILTERS = ["all", "eat", "coffee", "sweet", "drinks", "shop", "pamper", "sights", "rainy", "vibes", "tailor", "fact"];
 const dark = () => matchMedia("(prefers-color-scheme: dark)").matches;
 const STYLE = () => `https://tiles.openfreemap.org/styles/${dark() ? "dark" : "positron"}`;
 

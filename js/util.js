@@ -6,6 +6,7 @@ export const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;"
 export const md = s => esc(s)
   .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
   .replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, "$1<em>$2</em>")
+  .replace(/https?:\/\/(?:www\.)?([^/\s<]+)[^\s<]*/g, (u, host) => `<a href="${u}" target="_blank" rel="noopener">${host}</a>`)
   .replace(/\n/g, "<br>");
 
 export const $ = (sel, root = document) => root.querySelector(sel);
@@ -96,6 +97,8 @@ const I = {
   vibes: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3zM18.5 16l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"/>',
   tailor: '<circle cx="6.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/><path d="M8.5 16 18 4M15.5 16 6 4"/>',
   rainy: '<path d="M3 12a9 9 0 0 1 18 0H3zM12 12v6.5a2 2 0 0 1-4 0M12 3v1"/>',
+  drinks: '<path d="M4.5 4.5h15L12 13 4.5 4.5zM12 13v7M8 20h8M15 3l-2 4"/>',
+  pamper: '<path d="M12 20c-4 0-7.5-2.6-7.5-6.5 2.8 0 5.4 1.2 7.5 3.3 2.1-2.1 4.7-3.3 7.5-3.3 0 3.9-3.5 6.5-7.5 6.5zM12 16.8c-1.7-1.7-2.6-3.9-2.6-6.3S10.3 5.7 12 4c1.7 1.7 2.6 4.1 2.6 6.5s-.9 4.6-2.6 6.3z"/>',
   practical: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
   fact: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 1 3.5 10.9c-.6.4-1 1.1-1 1.8V16h-5v-.3c0-.7-.4-1.4-1-1.8A6 6 0 0 1 12 3z"/>',
   home: '<path d="M4 11 12 4l8 7M6 9.5V20h12V9.5"/>',
@@ -121,7 +124,9 @@ export const CATS = {
   eat: { label: "Eat", color: "#AF52DE", icon: "eat" },
   coffee: { label: "Coffee", color: "#A2845E", icon: "coffee" },
   sweet: { label: "Sweet", color: "#FF2D55", icon: "sweet" },
+  drinks: { label: "Drinks", color: "#C28A00", icon: "drinks" },
   shop: { label: "Shop", color: "#FF9500", icon: "shop" },
+  pamper: { label: "Pamper", color: "#30A46C", icon: "pamper" },
   sights: { label: "Sights", color: "#007AFF", icon: "sights" },
   vibes: { label: "Vibes", color: "#5856D6", icon: "vibes" },
   tailor: { label: "Tailors", color: "#30B0C7", icon: "tailor" },

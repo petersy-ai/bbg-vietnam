@@ -175,7 +175,11 @@ function nowDuring(d, now) {
   let near = pinned.length ? pinned : local;
   const withDist = near.map(c => ({ c, m: distTo(c) }));
   const useDist = withDist.some(x => x.m != null && x.m < 15000);
-  if (useDist) near = withDist.filter(x => x.m != null).sort((a, b) => a.m - b.m).map(x => x.c);
+  const fitsNow = c => !(c.tod || []).length || c.tod.includes(per);
+  if (useDist) {
+    const byDist = withDist.filter(x => x.m != null).sort((a, b) => a.m - b.m).map(x => x.c);
+    near = [...byDist.filter(fitsNow), ...byDist.filter(c => !fitsNow(c))];
+  }
   else near = near.map(c => ({ c, s: ((c.days || []).includes(d) ? 3 : 0) + ((c.tod || []).includes(per) ? 2 : 0) + (c.vibes ? 1 : 0) + (c.stop === currentStop() ? 1 : 0) }))
     .sort((a, b) => b.s - a.s).map(x => x.c);
   const hotel = day.hotel && D.places[day.hotel];
@@ -312,7 +316,7 @@ function tripPlaces() {
 function stopDetail(id) {
   const s = stopObj(id);
   const cards = D.cardList.filter(c => c.stop === id);
-  const groups = [["eat", "Eat"], ["coffee", "Coffee"], ["sweet", "Sweet"], ["shop", "Shop"], ["sights", "Sights"], ["vibes", "Vibes"], ["tailor", "Tailors"], ["practical", "Know this"], ["fact", "Unsolicited facts"]];
+  const groups = [["eat", "Eat"], ["coffee", "Coffee"], ["sweet", "Sweet"], ["drinks", "Drinks"], ["shop", "Shop"], ["pamper", "Pamper"], ["sights", "Sights"], ["vibes", "Vibes"], ["tailor", "Tailors"], ["practical", "Know this"], ["fact", "Unsolicited facts"]];
   const rainy = cards.filter(c => c.rainy);
   return `<button class="btn" style="width:auto;height:34px;margin-bottom:8px" data-act="back">${icon("back")} Trip</button>
     <div class="eyebrow">${s.days.map(x => `${x} Nov`).join(" · ")}</div><h1 class="large-title">${esc(s.name)}</h1>
