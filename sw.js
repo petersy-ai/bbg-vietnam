@@ -1,12 +1,14 @@
 // Offline support. The build stamps VERSION and the file list.
-const VERSION = "20261028-061707";
+const VERSION = "20261028-062428";
 const SHELL = ["./", "./app.css", "./data.enc.json", "./icons/apple-touch-icon.png", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png", "./index.html", "./js/app.js", "./js/crypto.js", "./js/map.js", "./js/util.js", "./manifest.webmanifest", "./vendor/maplibre-LICENSE.txt", "./vendor/maplibre-gl.css", "./vendor/maplibre-gl.js"];
 const SHELL_CACHE = `bbg-shell-${VERSION}`;
 const MAP_CACHE = "bbg-map-v1";
 const MAP_HOST = "tiles.openfreemap.org";
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(SHELL_CACHE).then(c => c.addAll(SHELL)));
+  // cache: "reload" skips the browser's HTTP cache (GitHub Pages serves files with a 10-minute max-age),
+  // so a new version never precaches a stale copy of the old one.
+  e.waitUntil(caches.open(SHELL_CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: "reload" })))));
 });
 
 self.addEventListener("activate", e => {

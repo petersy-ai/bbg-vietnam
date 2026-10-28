@@ -561,14 +561,24 @@ async function copy(text) {
 // ================= service worker: offline + "new vibes" updates =================
 function registerSW() {
   if (!("serviceWorker" in navigator)) return;
+  const loadedAt = Date.now();
   navigator.serviceWorker.register("sw.js").then(reg => {
-    const prompt = w => toast("New vibes available.", { label: "Refresh", run: () => w.postMessage("skip") });
-    if (reg.waiting && navigator.serviceWorker.controller) prompt(reg.waiting);
+    // A new version found at launch, or left waiting from last time, applies itself: nothing has been
+    // touched yet, so the reload costs nothing. One found mid-session only offers a Refresh, and gets
+    // applied at the next launch if the toast is ignored.
+    const apply = w => {
+      if (!navigator.serviceWorker.controller) return; // first install: nothing to swap
+      if (Date.now() - loadedAt < 10000) w.postMessage("skip");
+      else toast("New vibes available.", { label: "Refresh", run: () => w.postMessage("skip") });
+    };
+    if (reg.waiting) apply(reg.waiting);
     reg.addEventListener("updatefound", () => {
       const w = reg.installing;
-      w?.addEventListener("statechange", () => { if (w.state === "installed" && navigator.serviceWorker.controller) prompt(w); });
+      w?.addEventListener("statechange", () => { if (w.state === "installed") apply(w); });
     });
-    setInterval(() => reg.update().catch(() => {}), 30 * 60e3);
+    const check = () => reg.update().catch(() => {});
+    setInterval(check, 30 * 60e3);
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") check(); });
   }).catch(() => {});
   let reloaded = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => { if (!reloaded) { reloaded = true; location.reload(); } });
