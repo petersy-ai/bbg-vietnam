@@ -99,7 +99,14 @@ function onClick(e) {
   if (ds.seg) { ui.trip.seg = ds.seg; ui.trip.day = null; ui.trip.stop = null; return renderTrip(); }
   if (ds.stop) { ui.trip.stop = ds.stop; renderTrip(); return window.scrollTo(0, 0); }
   if (ds.dish) { ui.trip.dish = ds.dish; return renderTrip(); }
-  if (ds.done) { done[ds.done] ? delete done[ds.done] : done[ds.done] = 1; store.set("done", done); t.classList.toggle("done", !!done[ds.done]); return; }
+  if (ds.done) {
+    done[ds.done] ? delete done[ds.done] : done[ds.done] = 1; store.set("done", done);
+    const on = !!done[ds.done];
+    t.classList.toggle("done", on);
+    const tick = t.querySelector(".tick"); if (tick) tick.innerHTML = on ? icon("check") : "";
+    if (ds.done.startsWith("pack.")) packCounts();
+    return;
+  }
   if (ds.phrase) return poster("phrase", +ds.phrase);
   if (ds.fact) return factAction(ds.fact);
   if (ds.act) return act(ds.act, t);
@@ -118,6 +125,7 @@ function act(a, t) {
     case "copy": return copy(ds.text);
     case "showmap": closeModal(); go("map"); return showMap({ place: ds.pid, stop: ds.stop });
     case "back": ui.trip.day = null; ui.trip.stop = null; renderTrip(); return window.scrollTo(0, 0);
+    case "packing": ui.trip.seg = "prep"; ui.trip.day = null; ui.trip.stop = null; go("trip"); return document.getElementById("packing")?.scrollIntoView();
     case "closeposter": return closePoster();
     case "savemaps": return saveMaps(t);
     case "lock": forgetKey(); location.reload(); return;
@@ -147,6 +155,7 @@ function nowBefore(now) {
     <div class="hero"><span class="k">First stop</span><span class="t">Hanoi ${n === 1 ? "tomorrow" : `in ${n} days`}</span>
       <span class="s">VN256 lands 22:40, Sun 1 Nov. A driver meets you.</span></div>
     ${section("Before you go", rows(todos, { check: true }))}
+    <div class="list" style="margin-top:10px"><button type="button" class="row" data-act="packing"><span class="ic">${icon("shop")}</span><span class="txt"><b>Packing list</b><span>${esc(packProgress())}</span></span><span class="meta">${icon("chev")}</span></button></div>
     ${urgent.length ? section("Heads up for the first days", rows(urgent)) : ""}
     <div style="margin-top:26px">${factCard()}</div>
     <button class="btn-tint" style="margin-top:14px" data-day="1">Preview day 1 ${icon("chev")}</button>`;
@@ -338,10 +347,40 @@ function tripEat() {
     ${foodFacts.length ? section("Food facts", rows(foodFacts)) : ""}`;
 }
 
+// ---- packing list: groups of tickable rows, ticks stored as pack.<group>.<n> ----
+const packId = (g, i) => `pack.${g.id}.${i + 1}`;
+function packProgress() {
+  const ids = (D.packing || []).flatMap(g => g.items.map((_, i) => packId(g, i)));
+  const n = ids.filter(id => done[id]).length;
+  return n === ids.length ? "All packed. Go on then." : `${n} of ${ids.length} packed`;
+}
+function packCounts() {
+  for (const g of D.packing || []) {
+    const el = document.querySelector(`[data-packcount="${g.id}"]`);
+    if (el) el.textContent = `${g.items.filter((_, i) => done[packId(g, i)]).length}/${g.items.length}`;
+  }
+  const total = document.querySelector("[data-packtotal]");
+  if (total) total.textContent = packProgress();
+}
+function packing() {
+  const groups = D.packing || [];
+  let opened = false;
+  const html = groups.map(g => {
+    const n = g.items.filter((_, i) => done[packId(g, i)]).length;
+    const open = !opened && n < g.items.length; if (open) opened = true;
+    return `<details class="pack"${open ? " open" : ""}><summary><span class="chev">${icon("chev")}</span><span>${esc(g.title)}</span><span class="meta" data-packcount="${g.id}">${n}/${g.items.length}</span></summary>
+      ${g.lead ? `<p class="sub pack-lead">${esc(g.lead)}</p>` : ""}
+      <div class="list">${g.items.map(([text, note], i) => { const id = packId(g, i), on = !!done[id];
+        return `<button type="button" class="row pack${on ? " done" : ""}" data-done="${id}"><span class="tick">${on ? icon("check") : ""}</span><span class="txt"><b>${esc(text)}</b>${note ? `<span>${esc(note)}</span>` : ""}</span></button>`; }).join("")}</div></details>`;
+  }).join("");
+  return `<div id="packing">${section("Packing", `<p class="sub" style="margin:0 4px 10px" data-packtotal>${esc(packProgress())}</p>${html}<p class="foot" style="margin:12px 4px 0">${esc(D.packingNote || "")}</p>`)}</div>`;
+}
+
 function tripPrep() {
   const todos = D.todos.map(id => D.cards[id]);
   const saved = store.get("mapsSaved");
   return `${section("Before you go", rows(todos, { check: true }))}
+    ${packing()}
     ${section("Offline maps", `<div class="list" style="padding:14px;display:grid;gap:10px">
       <p class="sub">Download the map for every stop while you're on wifi, so it works on the train, the trek and the boat. About 40–80 MB.</p>
       <button class="btn-primary" data-act="savemaps" id="saveMapsBtn">${icon("download")} ${saved ? "Update offline maps" : "Download offline maps"}</button>
@@ -355,7 +394,7 @@ function tripPrep() {
 function vibeReport(big) {
   const tally = Object.values(facts), ok = tally.filter(v => v !== "boring").length, no = tally.length - ok;
   const deep = tally.filter(v => v === "deep").length;
-  const ticks = Object.keys(done).length;
+  const ticks = Object.keys(done).filter(k => !k.startsWith("pack.")).length;
   const verdict = !tally.length ? "No facts rated yet. Suspicious." : ok > no ? "She's coming around." : ok === no ? "A dead heat." : "Tough crowd.";
   return `${big ? `<div class="eyebrow">After the trip</div><h1 class="large-title">Vibe report</h1>` : `<div class="section-h"><h2>Vibe report</h2></div>`}
     <div class="hero" style="margin-top:${big ? 16 : 0}px"><span class="k">Unsolicited facts</span>

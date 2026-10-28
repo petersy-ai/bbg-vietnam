@@ -154,6 +154,16 @@ a.btn-primary { color: var(--on-purple); }
 .row.done .tick { background: var(--purple); border-color: var(--purple); color: #fff; }
 .row .tick svg { width: 16px; height: 16px; stroke-width: 3; }
 .row.urgent .ic { background: var(--orange-tint); color: var(--orange); }
+.row.pack { grid-template-columns: 26px 1fr; }
+.row.pack .txt b { white-space: normal; }
+details.pack { margin-top: 6px; }
+details.pack summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 10px 4px 6px; font-size: 17px; font-weight: 600; }
+details.pack summary::-webkit-details-marker { display: none; }
+details.pack summary .chev { display: grid; color: var(--label-3); transition: transform 0.2s; }
+details.pack summary .chev svg { width: 16px; height: 16px; }
+details.pack[open] summary .chev { transform: rotate(90deg); }
+details.pack summary .meta { margin-left: auto; color: var(--label-2); font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; }
+details.pack .pack-lead { margin: 0 4px 8px; font-size: 14px; }
 
 /* ---------- badges ---------- */
 .badges { display: flex; flex-wrap: wrap; gap: 6px; }
