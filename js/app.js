@@ -352,12 +352,14 @@ const packId = (g, i) => `pack.${g.id}.${i + 1}`;
 function packProgress() {
   const ids = (D.packing || []).flatMap(g => g.items.map((_, i) => packId(g, i)));
   const n = ids.filter(id => done[id]).length;
+  if (!n) return "Start with the easy wins: undies and socks.";
   return n === ids.length ? "All packed. Go on then." : `${n} of ${ids.length} packed`;
 }
+const packCount = g => { const n = g.items.filter((_, i) => done[packId(g, i)]).length; return n === g.items.length ? "Done" : `${n}/${g.items.length}`; };
 function packCounts() {
   for (const g of D.packing || []) {
     const el = document.querySelector(`[data-packcount="${g.id}"]`);
-    if (el) el.textContent = `${g.items.filter((_, i) => done[packId(g, i)]).length}/${g.items.length}`;
+    if (el) { el.textContent = packCount(g); el.classList.toggle("ok", el.textContent === "Done"); }
   }
   const total = document.querySelector("[data-packtotal]");
   if (total) total.textContent = packProgress();
@@ -366,14 +368,15 @@ function packing() {
   const groups = D.packing || [];
   let opened = false;
   const html = groups.map(g => {
-    const n = g.items.filter((_, i) => done[packId(g, i)]).length;
-    const open = !opened && n < g.items.length; if (open) opened = true;
-    return `<details class="pack"${open ? " open" : ""}><summary><span class="chev">${icon("chev")}</span><span>${esc(g.title)}</span><span class="meta" data-packcount="${g.id}">${n}/${g.items.length}</span></summary>
+    const count = packCount(g);
+    const open = !opened && count !== "Done"; if (open) opened = true;
+    // name="packing" makes the groups exclusive: opening one closes the rest, so it's never a wall.
+    return `<details class="pack" name="packing"${open ? " open" : ""}><summary><span class="chev">${icon("chev")}</span><span>${esc(g.title)}</span><span class="meta${count === "Done" ? " ok" : ""}" data-packcount="${g.id}">${count}</span></summary>
       ${g.lead ? `<p class="sub pack-lead">${esc(g.lead)}</p>` : ""}
       <div class="list">${g.items.map(([text, note], i) => { const id = packId(g, i), on = !!done[id];
         return `<button type="button" class="row pack${on ? " done" : ""}" data-done="${id}"><span class="tick">${on ? icon("check") : ""}</span><span class="txt"><b>${esc(text)}</b>${note ? `<span>${esc(note)}</span>` : ""}</span></button>`; }).join("")}</div></details>`;
   }).join("");
-  return `<div id="packing">${section("Packing", `<p class="sub" style="margin:0 4px 10px" data-packtotal>${esc(packProgress())}</p>${html}<p class="foot" style="margin:12px 4px 0">${esc(D.packingNote || "")}</p>`)}</div>`;
+  return `<div id="packing">${section("Packing", `<p class="sub" style="margin:0 4px 2px">Top to bottom, easiest first. One group at a time.</p><p class="foot" style="margin:0 4px 10px" data-packtotal>${esc(packProgress())}</p>${html}<p class="foot" style="margin:12px 4px 0">${esc(D.packingNote || "")}</p>`)}</div>`;
 }
 
 function tripPrep() {

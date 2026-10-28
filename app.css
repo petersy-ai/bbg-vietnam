@@ -163,6 +163,7 @@ details.pack summary .chev { display: grid; color: var(--label-3); transition: t
 details.pack summary .chev svg { width: 16px; height: 16px; }
 details.pack[open] summary .chev { transform: rotate(90deg); }
 details.pack summary .meta { margin-left: auto; color: var(--label-2); font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; }
+details.pack summary .meta.ok { color: var(--green); font-weight: 600; }
 details.pack .pack-lead { margin: 0 4px 8px; font-size: 14px; }
 
 /* ---------- badges ---------- */
