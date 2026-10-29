@@ -46,6 +46,7 @@ function start(data) {
   watchPosition();
   wire();
   go(store.get("tab", "now"));
+  if (location.hash === "#packing") act("packing", document.body); // the QR code on the proposal lands here
   ticker = setInterval(() => { if (ui.tab === "now" && $("#modal").hidden) renderNow(true); }, 30000);
 }
 
