@@ -3,6 +3,7 @@ import { $, esc, md, store, vnNow, tripDay, daysUntilTrip, period, parseClock, i
   directionsUrl, appleMapsUrl, icon, CATS, catOf, badgesHTML } from "./util.js";
 import { loadBlob, unlockSaved, unlockWith, forgetKey } from "./crypto.js";
 import { initMap, showMap, saveMapsOffline } from "./map.js";
+import { initGifts, renderGifts, giftsSummary } from "./gifts.js";
 
 let D = null;
 const ui = { tab: "now", trip: { seg: "days", day: null, stop: null, dish: "ok" } };
@@ -43,6 +44,7 @@ function start(data) {
   D.cardList = Object.values(D.cards);
   $("#lock").hidden = true; $("#app").hidden = false;
   initMap({ D, currentStop, openCard, openPlace, setPos: p => { pos = p; } });
+  initGifts({ D, openModal, closeModal, toast, say: (vi, en) => poster("say", { vi, en }), getPos: () => pos, tab: () => ui.tab });
   watchPosition();
   wire();
   go(store.get("tab", "now"));
@@ -84,6 +86,7 @@ function go(tab) {
   $("#mapView").hidden = tab !== "map";
   if (tab === "now") renderNow();
   else if (tab === "trip") renderTrip();
+  else if (tab === "gifts") renderGifts();
   else showMap({});
   if (tab !== "map") window.scrollTo(0, 0);
 }
@@ -198,11 +201,18 @@ function nowDuring(d, now) {
     <h1 class="large-title">Now</h1>
     <p class="vibe">Today's vibe: <b>${esc(day.vibe)}</b></p>
     ${hero}
+    ${d >= 10 && d <= 14 ? giftsRow() : ""}
     ${urgent.length ? section("Heads up", rows(urgent, { check: true })) : ""}
     ${section(useDist ? "Near you" : `Around ${stopObj(currentStop())?.short || ""}`, rows(near.slice(0, 5), { dist: useDist }), `<button data-tab="map">Map</button>`)}
     <div style="margin-top:26px">${factCard()}</div>
     ${hotel ? section("Tonight", `<div class="list"><button class="row" data-place="${esc(day.hotel)}"><span class="ic">${icon("home")}</span><span class="txt"><b>${esc(hotel.name)}</b><span>${esc(hotel.address_vi || "")}</span></span><span class="meta">${icon("chev")}</span></button></div>`) : ""}
     <button class="btn-tint" style="margin-top:18px" data-day="${d}">All of day ${d} ${icon("chev")}</button>`;
+}
+
+function giftsRow() {
+  const g = giftsSummary();
+  const sub = g.left ? `${g.n} of ${g.all} sorted${g.next ? ` · Next: ${g.next}` : ""}` : "All sorted";
+  return `<div class="list" style="margin-top:12px"><button type="button" class="row" data-tab="gifts"><span class="ic">${icon("gift")}</span><span class="txt"><b>Gifts</b><span>${esc(sub)}</span></span><span class="meta">${icon("chev")}</span></button></div>`;
 }
 
 function section(title, body, extra = "") {
@@ -539,6 +549,8 @@ function poster(kind, arg) {
   } else if (kind === "phrase") {
     const ph = D.phrases[arg];
     html = `<p class="big">${esc(ph[1])}</p><p class="en">${esc(ph[0])} · ${esc(ph[2])}</p>`;
+  } else if (kind === "say") {
+    html = `<p class="big huge">${esc(arg.vi)}</p><p class="en">${esc(arg.en)}</p>`;
   }
   el.innerHTML = `<button class="done-top" data-act="closeposter">Done</button>` + html;
   el.hidden = false;
